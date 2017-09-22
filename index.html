@@ -52,6 +52,7 @@
       input, textarea, button, canvas {
         border-radius: 3px;
         border: 1px solid #ccc;
+        margin: 0;
       }
       textarea {
         font-family: monospace;
@@ -62,6 +63,9 @@
       }
       input {
         width: 130px;
+      }
+      input[type=range] {
+        margin-top: 6px;
       }
       input:focus {
         border-color: rgb(13, 129, 242);
@@ -100,8 +104,8 @@
             <td><input type="number" id="numPointsField" value="300" min="2" step="1" autocomplete="off"></td>
           </tr>
           <tr>
-            <td><label for="maxAngleDiffField">Max. turn angle</label></td>
-            <td><input type="number" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
+            <td><label for="maxAngleDiffField">Drunkeness</label></td>
+            <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
           </tr>
           <tr>
             <td colspan="2"></td>
