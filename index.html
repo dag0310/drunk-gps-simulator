@@ -88,12 +88,15 @@
         background-color: rgba(30, 144, 255, 1.0);
       }
       #gpsTrackCsvData {
+        display: none;
         height: 100px;
       }
       #gpsTrackCanvas {
+        display: none;
         border: 1px solid #ccc;
         transform: scale(1, -1);
         background-color: lightgreen;
+        margin: 20px 0 10px;
       }
     </style>
   </head>
@@ -137,11 +140,9 @@
             <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
           </tr>
         </table>
-        <button type="submit" class="responsiveness">Stumble around</button><br>
+        <button type="submit" class="responsiveness">Stumble around</button>
       </form>
-      <br>
       <canvas id="gpsTrackCanvas" class="responsiveness" width="400" height="400"></canvas>
-      <br>
       <textarea id="gpsTrackCsvData" class="responsiveness" oninput="drawCsvTextOnCanvas()" autocomplete="off"></textarea>
     </main>
 
@@ -271,6 +272,9 @@
       const geoCoordinatesDecimalPlaces = 6;
 
       function generateGpsTrack() {
+        gpsTrackCanvas.style.display = 'block';
+        gpsTrackCsvData.style.display = 'block';
+        
         const geoCoordinates = generateGeoCoordinates();
         const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates, geoCoordinatesDecimalPlaces);
 
