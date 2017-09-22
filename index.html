@@ -100,8 +100,22 @@
       <form onsubmit="return generateGpsTrack()">
         <table>
           <tr>
-            <td><label for="numPointsField">Number of points</label></td>
-            <td><input type="number" id="numPointsField" value="300" min="2" step="1" autocomplete="off"></td>
+            <td><label for="numPointsField">Distance</label></td>
+            <td>
+              <select id="numPointsField" autocomplete="off">
+                <option value="2">2 points</option>
+                <option value="3">3 point</option>
+                <option value="5">5 points</option>
+                <option value="10">10 points</option>
+                <option value="100">100 points</option>
+                <option value="300" selected>300 points</option>
+                <option value="1000">Long to drive</option>
+                <option value="100000">Small country</option>
+                <option value="500000">Amsterdam to Wales</option>
+                <option value="1000000">Million points</option>
+                <option value="1000000000">Billion points</option>
+              </select>
+            </td>
           </tr>
           <tr>
             <td><label for="maxAngleDiffField">Drunkeness</label></td>
@@ -256,7 +270,7 @@
       // UI events
       // ---------
       const geoCoordinatesDecimalPlaces = 6;
-      
+
       function generateGpsTrack() {
         const geoCoordinates = generateGeoCoordinates();
         const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates, geoCoordinatesDecimalPlaces);
