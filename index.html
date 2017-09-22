@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>GPS track generator</title>
+    <meta name="description" content="Generate random GPS tracks and see a preview of it.">
+    <meta name="author" content="Daniel Geymayer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #ddd;
+        padding: 0;
+        margin: 0;
+      }
+      main {
+        background-color: #fff;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        box-shadow: 0 1px 8px rgba(0,0,0,0.3);
+      }
+      h1 {
+        font-size: 21px;
+        font-weight: normal;
+        text-transform: uppercase;
+        text-align: center;
+        margin-top: 0;
+        letter-spacing: 1px;
+      }
+      table {
+        width: 100%;
+      }
+      table tr td:first-child {
+        text-align: right;
+        padding-right: 5px;
+      }
+      table tr td:last-child {
+        text-align: left;
+        padding-left: 5px;
+      }
+      label {
+        font-size: 14px;
+      }
+      input, textarea {
+        padding: 5px 5px;
+      }
+      input, textarea, button, canvas {
+        border-radius: 3px;
+        border: 1px solid #ccc;
+      }
+      textarea {
+        font-family: monospace;
+      }
+      .responsiveness {
+        width: 100%;
+        max-width: 400px;
+      }
+      input {
+        width: 130px;
+      }
+      input:focus {
+        border-color: rgb(13, 129, 242);
+      }
+      button {
+        border: 2px solid rgb(13, 129, 242);
+        padding: 8px 15px;
+        font-size: 18px;
+        cursor: pointer;
+        background-color: rgba(30, 144, 255, 0.9);
+        color: white;
+      }
+      button:hover {
+        background-color: rgba(30, 144, 255, 0.8);
+      }
+      button:active {
+        background-color: rgba(30, 144, 255, 1.0);
+      }
+      #gpsTrackCsvData {
+        height: 100px;
+      }
+      #gpsTrackCanvas {
+        border: 1px solid #ccc;
+        transform: scale(1, -1);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>GPS track generator</h1>
+      <form onsubmit="return generateGpsTrack()">
+        <table>
+          <tr>
+            <td><label for="numPointsField">Number of points</label></td>
+            <td><input type="number" id="numPointsField" value="300" min="2" step="1"></td>
+          </tr>
+          <tr>
+            <td><label for="maxAngleDiffField">Max. turn angle</label></td>
+            <td><input type="number" id="maxAngleDiffField" value="90" min="1" max="360" step="1"></td>
+          </tr>
+          <tr>
+            <td colspan="2"></td>
+          </tr>
+          <tr>
+            <td><label for="startLatField">Start latitude</label></td>
+            <td><input type="text" id="startLatField" value="42.430420"></td>
+          </tr>
+          <tr>
+            <td><label for="startLonField">Start longitude</label></td>
+            <td><input type="text" id="startLonField" value="19.259364"></td>
+          </tr>
+          <tr>
+            <td><label for="minOffsetField">Min. point offset</label></td>
+            <td><input type="number" id="minOffsetField" value="-0.0005" step="0.0001"></td>
+          </tr>
+          <tr>
+            <td><label for="maxOffsetField">Max. point offset</label></td>
+            <td><input type="number" id="maxOffsetField" value="0.0005" step="0.0001"></td>
+          </tr>
+        </table>
+        <br>
+        <button type="submit" class="responsiveness">Generate GPS track</button><br>
+      </form>
+      <br>
+      <canvas id="gpsTrackCanvas" class="responsiveness" width="400" height="400"></canvas>
+      <br>
+      <textarea id="gpsTrackCsvData" class="responsiveness" oninput="drawCsvTextOnCanvas()"></textarea>
+    </main>
+
+    <script>
+      // --------------
+      // Pure functions
+      // --------------
+      function min(numbers) {
+        return Math.min.apply(null, numbers);
+      }
+
+      function max(numbers) {
+        return Math.max.apply(null, numbers);
+      }
+
+      function calculateAngleBetweenGeoCoordinates(p1, p2) {
+        let bearing = Math.atan2(p2.lat - p1.lat, p2.lon - p1.lon) * 180 / Math.PI;
+        bearing = (bearing + 360) % 360;
+        bearing = 360 - bearing;
+
+        return bearing;
+      }
+
+      function isValidNextGeoCoordinate(p1, p2, p3, maxAngleDiff) {
+        const angleOld = calculateAngleBetweenGeoCoordinates(p1, p2);
+        const angleNew = calculateAngleBetweenGeoCoordinates(p2, p3);
+        const diff = Math.abs(angleNew - angleOld) % 360;
+
+        return diff <= (maxAngleDiff / 2);
+      }
+
+      function generateRandomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function generateNewGeoCoordinate(oldGeoCoordinate, minOffset, maxOffset) {
+        const newGeoCoordinate = {
+          lat: oldGeoCoordinate.lat + generateRandomNumber(minOffset, maxOffset),
+          lon: oldGeoCoordinate.lon + generateRandomNumber(minOffset, maxOffset)
+        };
+
+        return newGeoCoordinate;
+      }
+
+      function geoCoordinatesToString(geoCoordinates) {
+        const places = 8;
+        return geoCoordinates
+          .map(geoCoordinate => ({lat: geoCoordinate.lat.toFixed(places), lon: geoCoordinate.lon.toFixed(places)}));
+      }
+
+      function geoCoordinatesAsStringToNumeric(geoCoordinatesAsString) {
+        return geoCoordinatesAsString
+          .map(geoCoordinateAsString => ({lat: parseFloat(geoCoordinateAsString.lat), lon: parseFloat(geoCoordinateAsString.lon)}));
+      }
+
+      function buildCsvText(geoCoordinatesAsString) {
+        return geoCoordinatesAsString
+          .map(geoCoordinateAsString => [geoCoordinateAsString.lat, geoCoordinateAsString.lon].join(','))
+          .join('\n');
+      }
+
+      function generateCanvasPoints(geoCoordinates, canvasWidth) {
+        const latitudes = geoCoordinates.map(geoCoordinate => geoCoordinate.lat);
+        const longitudes = geoCoordinates.map(geoCoordinate => geoCoordinate.lon);
+        const minLat = min(latitudes);
+        const maxLat = max(latitudes);
+        const minLon = min(longitudes);
+        const maxLon = max(longitudes);
+        const factor = canvasWidth / Math.max((maxLat - minLat), (maxLon - minLon));
+
+        const canvasPoints = geoCoordinates.map(geoCoordinate => {
+          const x = (geoCoordinate.lon - minLon) * factor;
+          const y = (geoCoordinate.lat - minLat) * factor;
+          return {x: parseInt(x, 10), y: parseInt(y, 10)};
+        });
+
+        return canvasPoints;
+      }
+
+      // ----------
+      // UI helpers
+      // ----------
+      const ctx = gpsTrackCanvas.getContext('2d');
+
+      function drawGeoCoordinatesOnCanvas(geoCoordinates) {
+        const canvasPoints = generateCanvasPoints(geoCoordinates, gpsTrackCanvas.width);
+
+        ctx.beginPath();
+        ctx.clearRect(0, 0, gpsTrackCanvas.width, gpsTrackCanvas.height);
+        canvasPoints.forEach(point => {
+          ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+      }
+
+      function generateGeoCoordinates() {
+        const minOffset = parseFloat(minOffsetField.value);
+        const maxOffset = parseFloat(maxOffsetField.value);
+        const startLat = parseFloat(startLatField.value);
+        const startLon = parseFloat(startLonField.value);
+        const numPoints = parseInt(numPointsField.value, 10);
+        const maxAngleDiff = parseFloat(maxAngleDiffField.value);
+
+        const startGeoCoordinate = {lat: startLat, lon: startLon};
+        const geoCoordinates = [startGeoCoordinate];
+        geoCoordinates.push(generateNewGeoCoordinate(startGeoCoordinate, minOffset, maxOffset));
+        const initialPointsLength = geoCoordinates.length;
+
+        for (let i = 0; i < (numPoints - initialPointsLength); i++) {
+          const lastGeoCoordinate = geoCoordinates[geoCoordinates.length - 1];
+          const secondLastGeoCoordinate = geoCoordinates[geoCoordinates.length - 2];
+
+          while (true) {
+            const potentialNextGeoCoordinate = generateNewGeoCoordinate(lastGeoCoordinate, minOffset, maxOffset);
+            if (!isValidNextGeoCoordinate(secondLastGeoCoordinate, lastGeoCoordinate, potentialNextGeoCoordinate, maxAngleDiff)) {
+              continue;
+            }
+            geoCoordinates.push(potentialNextGeoCoordinate);
+            break;
+          }
+        }
+
+        return geoCoordinates;
+      }
+
+      // ---------
+      // UI events
+      // ---------
+      function generateGpsTrack() {
+        const geoCoordinates = generateGeoCoordinates();
+        const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates);
+
+        gpsTrackCsvData.value = buildCsvText(geoCoordinatesAsString);
+
+        const geoCoordinatesRounded = geoCoordinatesAsStringToNumeric(geoCoordinatesAsString);
+        drawGeoCoordinatesOnCanvas(geoCoordinatesRounded);
+
+        return false;
+      }
+
+      function drawCsvTextOnCanvas() {
+        const geoCoordinatesAsString = gpsTrackCsvData.value.split('\n').map(line => {
+          const latLonArray = line.split(',');
+          return {lat: latLonArray[0], lon: latLonArray[1]};
+        });
+        const geoCoordinates = geoCoordinatesAsStringToNumeric(geoCoordinatesAsString);
+
+        drawGeoCoordinatesOnCanvas(geoCoordinates);
+
+        return false;
+      }
+    </script>
+  </body>
+</html>
