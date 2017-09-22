@@ -122,14 +122,6 @@
               </select>
             </td>
           </tr>
-          <tr>
-            <td><label for="minOffsetField">Min. point offset</label></td>
-            <td><input type="number" id="minOffsetField" value="-0.0005" step="0.0001" autocomplete="off"></td>
-          </tr>
-          <tr>
-            <td><label for="maxOffsetField">Max. point offset</label></td>
-            <td><input type="number" id="maxOffsetField" value="0.0005" step="0.0001" autocomplete="off"></td>
-          </tr>
         </table>
         <br>
         <button type="submit" class="responsiveness">Stumble around</button><br>
@@ -232,8 +224,8 @@
       }
 
       function generateGeoCoordinates() {
-        const minOffset = parseFloat(minOffsetField.value);
-        const maxOffset = parseFloat(maxOffsetField.value);
+        const minOffset = -0.0005;
+        const maxOffset = 0.0005;
         const startingPointArray = startingPointField.value.split(',');
         const numPoints = parseInt(numPointsField.value, 10);
         const maxAngleDiff = parseFloat(maxAngleDiffField.value);
