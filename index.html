@@ -35,6 +35,9 @@
       table {
         width: 100%;
       }
+      table tr td {
+        padding-bottom: 10px;
+      }
       table tr td:first-child {
         text-align: right;
         padding-right: 5px;
@@ -46,7 +49,7 @@
       label {
         font-size: 14px;
       }
-      input, textarea {
+      input, textarea, select {
         padding: 5px 5px;
       }
       input, textarea, button, canvas {
@@ -100,15 +103,27 @@
       <form onsubmit="return generateGpsTrack()">
         <table>
           <tr>
+            <td><label for="startingPointField">Starting point</label></td>
+            <td>
+              <select id="startingPointField" autocomplete="off">
+                <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
+                <option value="51.208147,3.224801">Bruges, Belgium</option>
+                <option value="47.071952,15.439605">Graz, Austria</option>
+                <option value="0.0,0.0">Null Island, Atlantic Ocean</option>
+                <option value="42.430420,19.259364">Podgorica, Montenegro</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
             <td><label for="numPointsField">Distance</label></td>
             <td>
               <select id="numPointsField" autocomplete="off">
-                <option value="2">2 points</option>
-                <option value="3">3 point</option>
-                <option value="5">5 points</option>
-                <option value="10">10 points</option>
-                <option value="100">100 points</option>
-                <option value="300" selected>300 points</option>
+                <option value="2">Some meters (2 points)</option>
+                <option value="3">~100 m</option>
+                <option value="5">~200 m</option>
+                <option value="10">~500 m</option>
+                <option value="100">~5 km</option>
+                <option value="300" selected>~15 km</option>
                 <option value="1000">Long to drive</option>
                 <option value="100000">Small country</option>
                 <option value="500000">Amsterdam to Wales</option>
@@ -121,20 +136,7 @@
             <td><label for="maxAngleDiffField">Drunkeness</label></td>
             <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
           </tr>
-          <tr>
-            <td><label for="startingPointField">Starting point</label></td>
-            <td>
-              <select id="startingPointField" autocomplete="off">
-                <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
-                <option value="51.208147,3.224801">Bruges, Belgium</option>
-                <option value="47.071952,15.439605">Graz, Austria</option>
-                <option value="0.0,0.0">Null Island, Atlantic Ocean</option>
-                <option value="42.430420,19.259364">Podgorica, Montenegro</option>
-              </select>
-            </td>
-          </tr>
         </table>
-        <br>
         <button type="submit" class="responsiveness">Stumble around</button><br>
       </form>
       <br>
