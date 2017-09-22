@@ -106,6 +106,7 @@
             <td><label for="startingPointField">Starting point</label></td>
             <td>
               <select id="startingPointField" autocomplete="off">
+                <!-- TODO: Add "<i>Custom</i> option to allow entering your own lat/lon values -->
                 <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
                 <option value="51.208147,3.224801">Bruges, Belgium</option>
                 <option value="47.071952,15.439605">Graz, Austria</option>
@@ -118,6 +119,7 @@
             <td><label for="numPointsField">Distance</label></td>
             <td>
               <select id="numPointsField" autocomplete="off">
+                <!-- TODO: Add "<i>Custom</i> option to allow entering a custom amount of point values -->
                 <option value="2">Some meters (2 points)</option>
                 <option value="3">~100 m</option>
                 <option value="5">~200 m</option>
@@ -126,14 +128,16 @@
                 <option value="300" selected>~15 km</option>
                 <option value="1000">Long to drive</option>
                 <option value="100000">Small country</option>
+                <!-- TODO: Enhance the path finding algorithm before enabling this: -->
                 <!--<option value="500000">Amsterdam to Wales</option>
-                <option value="1000000">Million points</option>
-                <option value="1000000000">Billion points</option>-->
+<option value="1000000">Million points</option>
+<option value="1000000000">Billion points</option>-->
               </select>
             </td>
           </tr>
           <tr>
             <td><label for="maxAngleDiffField">Drunkeness</label></td>
+            <!-- TODO: Enhance the path finding algorithm before setting min="0" for the range slider: -->
             <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
           </tr>
         </table>
@@ -250,6 +254,7 @@
           const lastGeoCoordinate = geoCoordinates[geoCoordinates.length - 1];
           const secondLastGeoCoordinate = geoCoordinates[geoCoordinates.length - 2];
 
+          // TODO: Implement a better path finding algorithm (no guessing):
           while (true) {
             const potentialNextGeoCoordinate = generateNewGeoCoordinate(lastGeoCoordinate, minOffset, maxOffset);
             if (!isValidNextGeoCoordinate(secondLastGeoCoordinate, lastGeoCoordinate, potentialNextGeoCoordinate, maxAngleDiff)) {
@@ -271,7 +276,7 @@
       function generateGpsTrack() {
         gpsTrackCanvas.style.display = 'block';
         gpsTrackCsvData.style.display = 'block';
-        
+
         const geoCoordinates = generateGeoCoordinates();
         const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates, geoCoordinatesDecimalPlaces);
 
