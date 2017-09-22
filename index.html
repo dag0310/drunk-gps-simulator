@@ -174,7 +174,7 @@
       }
 
       function geoCoordinatesToString(geoCoordinates) {
-        const places = 8;
+        const places = 6;
         return geoCoordinates
           .map(geoCoordinate => ({lat: geoCoordinate.lat.toFixed(places), lon: geoCoordinate.lon.toFixed(places)}));
       }
