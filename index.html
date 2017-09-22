@@ -107,12 +107,16 @@
             <td colspan="2"></td>
           </tr>
           <tr>
-            <td><label for="startLatField">Start latitude</label></td>
-            <td><input type="text" id="startLatField" value="42.430420"></td>
-          </tr>
-          <tr>
-            <td><label for="startLonField">Start longitude</label></td>
-            <td><input type="text" id="startLonField" value="19.259364"></td>
+            <td><label for="startingPointField">Starting point</label></td>
+            <td>
+              <select id="startingPointField">
+                <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
+                <option value="51.208147,3.224801">Bruges, Belgium</option>
+                <option value="47.071952,15.439605">Graz, Austria</option>
+                <option value="0.0,0.0">Null Island, Atlantic Ocean</option>
+                <option value="42.430420,19.259364">Podgorica, Montenegro</option>
+              </select>
+            </td>
           </tr>
           <tr>
             <td><label for="minOffsetField">Min. point offset</label></td>
@@ -226,12 +230,11 @@
       function generateGeoCoordinates() {
         const minOffset = parseFloat(minOffsetField.value);
         const maxOffset = parseFloat(maxOffsetField.value);
-        const startLat = parseFloat(startLatField.value);
-        const startLon = parseFloat(startLonField.value);
+        const startingPointArray = startingPointField.value.split(',');
         const numPoints = parseInt(numPointsField.value, 10);
         const maxAngleDiff = parseFloat(maxAngleDiffField.value);
 
-        const startGeoCoordinate = {lat: startLat, lon: startLon};
+        const startGeoCoordinate = {lat: parseFloat(startingPointArray[0]), lon: parseFloat(startingPointArray[1])};
         const geoCoordinates = [startGeoCoordinate];
         geoCoordinates.push(generateNewGeoCoordinate(startGeoCoordinate, minOffset, maxOffset));
         const initialPointsLength = geoCoordinates.length;
