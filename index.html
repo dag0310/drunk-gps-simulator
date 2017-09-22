@@ -173,10 +173,9 @@
         return newGeoCoordinate;
       }
 
-      function geoCoordinatesToString(geoCoordinates) {
-        const places = 6;
+      function geoCoordinatesToString(geoCoordinates, decimalPlaces) {
         return geoCoordinates
-          .map(geoCoordinate => ({lat: geoCoordinate.lat.toFixed(places), lon: geoCoordinate.lon.toFixed(places)}));
+          .map(geoCoordinate => ({lat: geoCoordinate.lat.toFixed(decimalPlaces), lon: geoCoordinate.lon.toFixed(decimalPlaces)}));
       }
 
       function geoCoordinatesAsStringToNumeric(geoCoordinatesAsString) {
@@ -257,9 +256,11 @@
       // ---------
       // UI events
       // ---------
+      const geoCoordinatesDecimalPlaces = 6;
+      
       function generateGpsTrack() {
         const geoCoordinates = generateGeoCoordinates();
-        const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates);
+        const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates, geoCoordinatesDecimalPlaces);
 
         gpsTrackCsvData.value = buildCsvText(geoCoordinatesAsString);
 
