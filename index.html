@@ -97,11 +97,11 @@
         <table>
           <tr>
             <td><label for="numPointsField">Number of points</label></td>
-            <td><input type="number" id="numPointsField" value="300" min="2" step="1"></td>
+            <td><input type="number" id="numPointsField" value="300" min="2" step="1" autocomplete="off"></td>
           </tr>
           <tr>
             <td><label for="maxAngleDiffField">Max. turn angle</label></td>
-            <td><input type="number" id="maxAngleDiffField" value="90" min="1" max="360" step="1"></td>
+            <td><input type="number" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
           </tr>
           <tr>
             <td colspan="2"></td>
@@ -109,7 +109,7 @@
           <tr>
             <td><label for="startingPointField">Starting point</label></td>
             <td>
-              <select id="startingPointField">
+              <select id="startingPointField" autocomplete="off">
                 <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
                 <option value="51.208147,3.224801">Bruges, Belgium</option>
                 <option value="47.071952,15.439605">Graz, Austria</option>
@@ -120,11 +120,11 @@
           </tr>
           <tr>
             <td><label for="minOffsetField">Min. point offset</label></td>
-            <td><input type="number" id="minOffsetField" value="-0.0005" step="0.0001"></td>
+            <td><input type="number" id="minOffsetField" value="-0.0005" step="0.0001" autocomplete="off"></td>
           </tr>
           <tr>
             <td><label for="maxOffsetField">Max. point offset</label></td>
-            <td><input type="number" id="maxOffsetField" value="0.0005" step="0.0001"></td>
+            <td><input type="number" id="maxOffsetField" value="0.0005" step="0.0001" autocomplete="off"></td>
           </tr>
         </table>
         <br>
@@ -133,7 +133,7 @@
       <br>
       <canvas id="gpsTrackCanvas" class="responsiveness" width="400" height="400"></canvas>
       <br>
-      <textarea id="gpsTrackCsvData" class="responsiveness" oninput="drawCsvTextOnCanvas()"></textarea>
+      <textarea id="gpsTrackCsvData" class="responsiveness" oninput="drawCsvTextOnCanvas()" autocomplete="off"></textarea>
     </main>
 
     <script>
