@@ -32,9 +32,6 @@
         margin-top: 0;
         letter-spacing: 1px;
       }
-      table {
-        width: 100%;
-      }
       table tr td {
         padding-bottom: 10px;
       }
@@ -62,7 +59,7 @@
       }
       .responsiveness {
         width: 100%;
-        max-width: 400px;
+        max-width: 100%;
       }
       input {
         width: 130px;
@@ -104,7 +101,7 @@
     <main>
       <h1>Drunk GPS Simulator</h1>
       <form onsubmit="return generateGpsTrack()">
-        <table>
+        <table class="responsiveness">
           <tr>
             <td><label for="startingPointField">Starting point</label></td>
             <td>
