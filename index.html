@@ -84,7 +84,7 @@
       button:active {
         background-color: rgba(30, 144, 255, 1.0);
       }
-      #gpsTrackCsvData {
+      #gpsTrackCsvTextArea {
         display: none;
         height: 100px;
       }
@@ -95,7 +95,7 @@
         background-color: lightgreen;
         margin: 20px 0 10px;
       }
-      #drunknessEmoji {
+      #drunkenessEmoji {
         position: relative;
         top: -5px;
       }
@@ -107,9 +107,9 @@
       <form onsubmit="return generateGpsTrack()">
         <table class="responsiveness">
           <tr>
-            <td><label for="startingPointField">Starting point</label></td>
+            <td><label for="startingPointControl">Starting point</label></td>
             <td>
-              <select id="startingPointField" autocomplete="off">
+              <select id="startingPointControl" autocomplete="off">
                 <!-- TODO: Add "<i>Custom</i> option to allow entering your own lat/lon values -->
                 <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
                 <option value="51.208147,3.224801">Bruges, Belgium</option>
@@ -120,9 +120,9 @@
             </td>
           </tr>
           <tr>
-            <td><label for="numPointsField">Distance</label></td>
+            <td><label for="distanceControl">Distance</label></td>
             <td>
-              <select id="numPointsField" autocomplete="off">
+              <select id="distanceControl" autocomplete="off">
                 <!-- TODO: Add "<i>Custom</i> option to allow entering a custom amount of point values -->
                 <option value="2">Some meters (2 points)</option>
                 <option value="3">~100 m</option>
@@ -141,15 +141,15 @@
             </td>
           </tr>
           <tr>
-            <td><label for="maxAngleDiffField">Drunkeness</label></td>
+            <td><label for="drunkenessControl">Drunkeness</label></td>
             <!-- TODO: Enhance the path finding algorithm before setting min="0" for the range slider: -->
-            <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off" oninput="drunknessChanged(this.value)" onchange="drunknessChanged(this.value)"> <span id="drunknessEmoji">&nbsp;</span></td>
+            <td><input type="range" id="drunkenessControl" value="90" min="1" max="360" step="1" autocomplete="off" oninput="drunkenessChanged(this.value)" onchange="drunkenessChanged(this.value)"> <span id="drunkenessEmoji">&nbsp;</span></td>
           </tr>
         </table>
         <button type="submit" class="responsiveness">Stumble around</button>
       </form>
       <canvas id="gpsTrackCanvas" class="responsiveness" width="400" height="400"></canvas>
-      <textarea id="gpsTrackCsvData" class="responsiveness" oninput="drawCsvTextOnCanvas()" autocomplete="off"></textarea>
+      <textarea id="gpsTrackCsvTextArea" class="responsiveness" oninput="drawCsvDataOnCanvas()" autocomplete="off"></textarea>
     </main>
 
     <script>
@@ -175,9 +175,9 @@
       function isValidNextGeoCoordinate(p1, p2, p3, maxAngleDiff) {
         const angleOld = calculateAngleBetweenGeoCoordinates(p1, p2);
         const angleNew = calculateAngleBetweenGeoCoordinates(p2, p3);
-        const diff = Math.abs(angleNew - angleOld) % 360;
+        const angleDiff = Math.abs(angleNew - angleOld) % 360;
 
-        return diff <= (maxAngleDiff / 2);
+        return angleDiff <= (maxAngleDiff / 2);
       }
 
       function generateRandomNumber(min, max) {
@@ -203,7 +203,7 @@
           .map(geoCoordinateAsString => ({lat: parseFloat(geoCoordinateAsString.lat), lon: parseFloat(geoCoordinateAsString.lon)}));
       }
 
-      function buildCsvText(geoCoordinatesAsString) {
+      function buildCsvData(geoCoordinatesAsString) {
         return geoCoordinatesAsString
           .map(geoCoordinateAsString => [geoCoordinateAsString.lat, geoCoordinateAsString.lon].join(','))
           .join('\n');
@@ -230,17 +230,19 @@
       // ----------
       // UI helpers
       // ----------
-      const ctx = gpsTrackCanvas.getContext('2d');
+      const canvasContext = gpsTrackCanvas.getContext('2d');
+      const timeouts = [];
       const totalDrawingTimeInMs = 350;
       const minTimePerLineInMs = 10;
       const maxPointsToRenderWithTimeout = 5000;
-      const timeouts = [];
+      const minGeoCoordinateOffset = -0.0005;
+      const maxGeoCoordinateOffset = 0.0005;
 
       function drawLine(startPoint, endPoint) {
-        ctx.beginPath();
-        ctx.moveTo(startPoint.x, startPoint.y);
-        ctx.lineTo(endPoint.x, endPoint.y);
-        ctx.stroke();
+        canvasContext.beginPath();
+        canvasContext.moveTo(startPoint.x, startPoint.y);
+        canvasContext.lineTo(endPoint.x, endPoint.y);
+        canvasContext.stroke();
       }
 
       function drawLinesRecursively(canvasPoints, idx, maxLinesPerDraw, timePerLineInMs) {
@@ -261,7 +263,7 @@
         }
 
         timeouts.forEach(clearTimeout);
-        ctx.clearRect(0, 0, gpsTrackCanvas.width, gpsTrackCanvas.height);
+        canvasContext.clearRect(0, 0, gpsTrackCanvas.width, gpsTrackCanvas.height);
 
         const canvasPoints = generateCanvasPoints(geoCoordinates, gpsTrackCanvas.width);
 
@@ -285,15 +287,13 @@
       }
 
       function generateGeoCoordinates() {
-        const minOffset = -0.0005;
-        const maxOffset = 0.0005;
-        const startingPointArray = startingPointField.value.split(',');
-        const numPoints = parseInt(numPointsField.value, 10);
-        const maxAngleDiff = parseFloat(maxAngleDiffField.value);
+        const startingPointArray = startingPointControl.value.split(',');
+        const numPoints = parseInt(distanceControl.value, 10);
+        const maxAngleDiff = parseFloat(drunkenessControl.value);
 
         const startGeoCoordinate = {lat: parseFloat(startingPointArray[0]), lon: parseFloat(startingPointArray[1])};
         const geoCoordinates = [startGeoCoordinate];
-        geoCoordinates.push(generateNewGeoCoordinate(startGeoCoordinate, minOffset, maxOffset));
+        geoCoordinates.push(generateNewGeoCoordinate(startGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset));
         const initialPointsLength = geoCoordinates.length;
 
         for (let i = 0; i < (numPoints - initialPointsLength); i++) {
@@ -302,7 +302,7 @@
 
           // TODO: Implement a better path finding algorithm (no guessing):
           while (true) {
-            const potentialNextGeoCoordinate = generateNewGeoCoordinate(lastGeoCoordinate, minOffset, maxOffset);
+            const potentialNextGeoCoordinate = generateNewGeoCoordinate(lastGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset);
             if (!isValidNextGeoCoordinate(secondLastGeoCoordinate, lastGeoCoordinate, potentialNextGeoCoordinate, maxAngleDiff)) {
               continue;
             }
@@ -321,12 +321,12 @@
 
       function generateGpsTrack() {
         gpsTrackCanvas.style.display = 'block';
-        gpsTrackCsvData.style.display = 'block';
+        gpsTrackCsvTextArea.style.display = 'block';
 
         const geoCoordinates = generateGeoCoordinates();
         const geoCoordinatesAsString = geoCoordinatesToString(geoCoordinates, geoCoordinatesDecimalPlaces);
 
-        gpsTrackCsvData.value = buildCsvText(geoCoordinatesAsString);
+        gpsTrackCsvTextArea.value = buildCsvData(geoCoordinatesAsString);
 
         const geoCoordinatesRounded = geoCoordinatesAsStringToNumeric(geoCoordinatesAsString);
         drawGeoCoordinatesOnCanvas(geoCoordinatesRounded);
@@ -334,8 +334,8 @@
         return false;
       }
 
-      function drawCsvTextOnCanvas() {
-        const geoCoordinatesAsString = gpsTrackCsvData.value.split('\n').map(line => {
+      function drawCsvDataOnCanvas() {
+        const geoCoordinatesAsString = gpsTrackCsvTextArea.value.split('\n').map(line => {
           const latLonArray = line.split(',');
           return {lat: latLonArray[0], lon: latLonArray[1]};
         });
@@ -346,7 +346,7 @@
         return false;
       }
 
-      function drunknessChanged(level) {
+      function drunkenessChanged(level) {
         level = parseInt(level, 10);
         let emoji;
         if (level === 0) {
@@ -372,9 +372,9 @@
         } else {
           emoji = '';
         }
-        drunknessEmoji.textContent = emoji;
+        drunkenessEmoji.textContent = emoji;
       }
-      drunknessChanged(maxAngleDiffField.value);
+      drunkenessChanged(drunkenessControl.value);
     </script>
   </body>
 </html>
