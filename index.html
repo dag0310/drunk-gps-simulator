@@ -95,6 +95,10 @@
         background-color: lightgreen;
         margin: 20px 0 10px;
       }
+      #drunknessEmoji {
+        position: relative;
+        top: -5px;
+      }
     </style>
   </head>
   <body>
@@ -139,7 +143,7 @@
           <tr>
             <td><label for="maxAngleDiffField">Drunkeness</label></td>
             <!-- TODO: Enhance the path finding algorithm before setting min="0" for the range slider: -->
-            <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off"></td>
+            <td><input type="range" id="maxAngleDiffField" value="90" min="1" max="360" step="1" autocomplete="off" oninput="drunknessChanged(this.value)" onchange="drunknessChanged(this.value)"> <span id="drunknessEmoji">&nbsp;</span></td>
           </tr>
         </table>
         <button type="submit" class="responsiveness">Stumble around</button>
@@ -341,6 +345,36 @@
 
         return false;
       }
+
+      function drunknessChanged(level) {
+        level = parseInt(level, 10);
+        let emoji;
+        if (level === 0) {
+          emoji = '😇';
+        } else if (level <= 45) {
+          emoji = '🙂';
+        } else if (level <= 90) {
+          emoji = '😊';
+        } else if (level <= 135) {
+          emoji = '😏';
+        } else if (level <= 180) {
+          emoji = '😋';
+        } else if (level <= 225) {
+          emoji = '😁';
+        } else if (level <= 270) {
+          emoji = '😆';
+        } else if (level <= 315) {
+          emoji = '😬';
+        } else if (level < 360) {
+          emoji = '😵';
+        } else if (level === 360) {
+          emoji = '🤢';
+        } else {
+          emoji = '';
+        }
+        drunknessEmoji.textContent = emoji;
+      }
+      drunknessChanged(maxAngleDiffField.value);
     </script>
   </body>
 </html>
