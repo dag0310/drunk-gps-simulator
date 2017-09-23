@@ -87,18 +87,18 @@
       #placeControl, #distanceControl {
         width: 100%;
       }
-      #latLonContainer {
+      #customLatLonContainer {
         margin-top: 3px;
         display: none;
       }
-      #latLonContainer input {
+      #customLatLonContainer input {
         width: 90px;
       }
-      #distanceContainer {
+      #customDistanceContainer {
         margin-top: 3px;
         display: none;
       }
-      #distanceContainer input {
+      #customDistanceContainer input {
         width: 100%;
       }
       #gpsTrackCsvTextArea {
@@ -133,7 +133,7 @@
                 <option value="0.0,0.0">Null Island, Atlantic Ocean</option>
                 <option value="42.430420,19.259364">Podgorica, Montenegro</option>
               </select>
-              <div id="latLonContainer">
+              <div id="customLatLonContainer">
                 <input type="number" id="customLatControl" value="" min="-180" max="180" step="0.000001" autocomplete="off" placeholder="Latitude">
                 <input type="number" id="customLonControl" value="" min="-180" max="180" step="0.000001" autocomplete="off" placeholder="Longitude">
               </div>
@@ -158,7 +158,7 @@
 <option value="1000000">Million points</option>
 <option value="1000000000">Billion points</option>-->
               </select>
-              <div id="distanceContainer">
+              <div id="customDistanceContainer">
                 <input type="number" id="customDistanceControl" value="" min="2" step="1" autocomplete="off" placeholder="Number of points">
               </div>
             </td>
@@ -401,11 +401,11 @@
       }
 
       function placeChanged(latLonString) {
-        latLonContainer.style.display = latLonString ? 'none' : 'block';
+        customLatLonContainer.style.display = latLonString ? 'none' : 'block';
       }
 
       function distanceChanged(numberOfPointsString) {
-        distanceContainer.style.display = numberOfPointsString ? 'none' : 'block';
+        customDistanceContainer.style.display = numberOfPointsString ? 'none' : 'block';
       }
 
       function drunkenessChanged(level) {
