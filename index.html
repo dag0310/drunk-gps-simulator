@@ -227,16 +227,57 @@
       // UI helpers
       // ----------
       const ctx = gpsTrackCanvas.getContext('2d');
+      const totalDrawingTimeInMs = 350;
+      const minTimePerLineInMs = 10;
+      const maxPointsToRenderWithTimeout = 5000;
+      const timeouts = [];
+
+      function drawLine(startPoint, endPoint) {
+        ctx.beginPath();
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(endPoint.x, endPoint.y);
+        ctx.stroke();
+      }
+
+      function drawLinesRecursively(canvasPoints, idx, maxLinesPerDraw, timePerLineInMs) {
+        for (let lineIdx = 0; lineIdx < maxLinesPerDraw; lineIdx++) {
+          if ((idx + 1) >= canvasPoints.length) {
+            return;
+          }
+          drawLine(canvasPoints[idx], canvasPoints[idx + 1]);
+          idx++;
+        }
+
+        timeouts.push(setTimeout(drawLinesRecursively, timePerLineInMs, canvasPoints, idx, maxLinesPerDraw, timePerLineInMs));
+      }
 
       function drawGeoCoordinatesOnCanvas(geoCoordinates) {
+        if (geoCoordinates.length < 2) {
+          return;
+        }
+
+        timeouts.forEach(clearTimeout);
+        ctx.clearRect(0, 0, gpsTrackCanvas.width, gpsTrackCanvas.height);
+
         const canvasPoints = generateCanvasPoints(geoCoordinates, gpsTrackCanvas.width);
 
-        ctx.beginPath();
-        ctx.clearRect(0, 0, gpsTrackCanvas.width, gpsTrackCanvas.height);
-        canvasPoints.forEach(point => {
-          ctx.lineTo(point.x, point.y);
-        });
-        ctx.stroke();
+        if (canvasPoints.length > maxPointsToRenderWithTimeout) {
+          for (let idx = 0; (idx + 1) < canvasPoints.length; idx++) {
+            drawLine(canvasPoints[idx], canvasPoints[idx + 1]);
+          }
+          return;
+        }
+
+        const timePerLineInMs = totalDrawingTimeInMs / geoCoordinates.length;
+
+        if (timePerLineInMs < minTimePerLineInMs) {
+          const maxLinesPerDraw = Math.ceil(geoCoordinates.length * minTimePerLineInMs / totalDrawingTimeInMs);
+          const timePerLineInMsCorrected = maxLinesPerDraw * totalDrawingTimeInMs / geoCoordinates.length;
+          drawLinesRecursively(canvasPoints, 0, maxLinesPerDraw, timePerLineInMsCorrected);
+          return;
+        }
+
+        drawLinesRecursively(canvasPoints, 0, 1, timePerLineInMs);
       }
 
       function generateGeoCoordinates() {
