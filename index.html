@@ -84,6 +84,13 @@
       button:active {
         background-color: rgba(30, 144, 255, 1.0);
       }
+      #latLonContainer {
+        margin-top: 3px;
+        display: none;
+      }
+      #latLonContainer input {
+        width: 90px;
+      }
       #gpsTrackCsvTextArea {
         display: none;
         height: 100px;
@@ -107,16 +114,20 @@
       <form onsubmit="return generateGpsTrack()">
         <table class="responsiveness">
           <tr>
-            <td><label for="startingPointControl">Starting point</label></td>
+            <td><label for="placeControl">Place</label></td>
             <td>
-              <select id="startingPointControl" autocomplete="off">
-                <!-- TODO: Add "<i>Custom</i> option to allow entering your own lat/lon values -->
-                <option value="52.371860,4.895861">Amsterdam, Netherlands</option>
+              <select id="placeControl" autocomplete="off" onchange="placeChanged(this.value)">
+                <option value="">Custom</option>
+                <option value="52.371860,4.895861" selected>Amsterdam, Netherlands</option>
                 <option value="51.208147,3.224801">Bruges, Belgium</option>
                 <option value="47.071952,15.439605">Graz, Austria</option>
                 <option value="0.0,0.0">Null Island, Atlantic Ocean</option>
                 <option value="42.430420,19.259364">Podgorica, Montenegro</option>
               </select>
+              <div id="latLonContainer">
+                <input type="number" id="customLatControl" value="" min="-180" max="180" step="0.000001" placeholder="Latitude">
+                <input type="number" id="customLonControl" value="" min="-180" max="180" step="0.000001" placeholder="Longitude">
+              </div>
             </td>
           </tr>
           <tr>
@@ -294,11 +305,19 @@
       }
 
       function generateGeoCoordinates() {
-        const startingPointArray = startingPointControl.value.split(',');
+        let startLatString, startLonString;
+        if (placeControl.value) {
+          const startingPointArray = placeControl.value.split(',');
+          startLatString = startingPointArray[0];
+          startLonString = startingPointArray[1];
+        } else {
+          startLatString = customLatControl.value || '0';
+          startLonString = customLonControl.value || '0';
+        }
+        const startGeoCoordinate = {lat: parseFloat(startLatString), lon: parseFloat(startLonString)};
         const numPoints = parseInt(distanceControl.value, 10);
         const maxAngleDiff = parseFloat(drunkenessControl.value);
 
-        const startGeoCoordinate = {lat: parseFloat(startingPointArray[0]), lon: parseFloat(startingPointArray[1])};
         const geoCoordinates = [startGeoCoordinate];
         geoCoordinates.push(generateRandomGeoCoordinate(startGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset));
         const initialPointsLength = geoCoordinates.length;
@@ -361,6 +380,10 @@
         return false;
       }
 
+      function placeChanged(latLonString) {
+        latLonContainer.style.display = latLonString ? 'none' : 'block';
+      }
+
       function drunkenessChanged(level) {
         level = parseInt(level, 10);
         let emoji;
@@ -389,6 +412,8 @@
         }
         drunkenessEmoji.textContent = emoji;
       }
+
+      placeChanged(placeControl.value);
       drunkenessChanged(drunkenessControl.value);
     </script>
   </body>
