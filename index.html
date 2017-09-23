@@ -399,10 +399,13 @@
 
       function placeChanged(latLonString) {
         customLatLonContainer.style.display = latLonString ? 'none' : 'block';
+        customLatControl.disabled = !!latLonString;
+        customLonControl.disabled = !!latLonString;
       }
 
       function distanceChanged(numberOfPointsString) {
         customDistanceContainer.style.display = numberOfPointsString ? 'none' : 'block';
+        customDistanceControl.disabled = !!numberOfPointsString;
       }
 
       function drunkenessChanged(level) {
