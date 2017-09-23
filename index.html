@@ -261,12 +261,12 @@
       // UI helpers
       // ----------
       const canvasContext = gpsTrackCanvas.getContext('2d');
-      const timeouts = [];
       const totalDrawingTimeInMs = 350;
       const minTimePerLineInMs = 10;
       const maxPointsToRenderWithTimeout = 5000;
       const minGeoCoordinateOffset = -0.0005;
       const maxGeoCoordinateOffset = 0.0005;
+      let timeouts = [];
 
       function drawLine(startPoint, endPoint) {
         canvasContext.beginPath();
@@ -293,6 +293,7 @@
         }
 
         timeouts.forEach(clearTimeout);
+        timeouts = [];
         canvasContext.clearRect(0, 0, gpsTrackCanvas.width, gpsTrackCanvas.height);
 
         const canvasPoints = generateCanvasPoints(geoCoordinates, gpsTrackCanvas.width);
