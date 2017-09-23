@@ -319,18 +319,19 @@
           startLatString = startingPointArray[0];
           startLonString = startingPointArray[1];
         } else {
-          startLatString = customLatControl.value || '0';
-          startLonString = customLonControl.value || '0';
+          startLatString = customLatControl.value;
+          startLonString = customLonControl.value;
         }
-        const startGeoCoordinate = {lat: parseFloat(startLatString), lon: parseFloat(startLonString)};
+        const startLatFloat = parseFloat(startLatString)
+        const startLonFloat = parseFloat(startLonString);
+        const startGeoCoordinate = {
+          lat: (startLatFloat >= -180 && startLatFloat <= 180) ? startLatFloat : 0,
+          lon: (startLonFloat >= -180 && startLonFloat <= 180) ? startLonFloat : 0
+        };
 
-        let numPointsString;
-        if (distanceControl.value) {
-          numPointsString = distanceControl.value;
-        } else {
-          numPointsString = customDistanceControl.value || 2;
-        }
-        const numPoints = parseInt(numPointsString, 10);
+        const numPointsString = distanceControl.value || customDistanceControl.value;
+        const numPointsInt = parseInt(numPointsString, 10);
+        const numPoints = (numPointsInt >= 2 && numPointsInt <= 10000) ? numPointsInt : 2;
 
         const maxAngleDiff = parseFloat(drunkenessControl.value);
 
