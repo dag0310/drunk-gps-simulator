@@ -142,8 +142,7 @@
           </tr>
           <tr>
             <td><label for="drunkenessControl">Drunkeness</label></td>
-            <!-- TODO: Enhance the path finding algorithm before setting min="0" for the range slider: -->
-            <td><input type="range" id="drunkenessControl" value="90" min="1" max="360" step="1" autocomplete="off" oninput="drunkenessChanged(this.value)" onchange="drunkenessChanged(this.value)"> <span id="drunkenessEmoji">&nbsp;</span></td>
+            <td><input type="range" id="drunkenessControl" value="90" min="0" max="360" step="1" autocomplete="off" oninput="drunkenessChanged(this.value)" onchange="drunkenessChanged(this.value)"> <span id="drunkenessEmoji">&nbsp;</span></td>
           </tr>
         </table>
         <button type="submit" class="responsiveness">Stumble around</button>
@@ -184,11 +183,19 @@
         return Math.random() * (max - min) + min;
       }
 
-      function generateNewGeoCoordinate(oldGeoCoordinate, minOffset, maxOffset) {
+      function generateGeoCoordinate(oldGeoCoordinate, offsetLat, offsetLon) {
         const newGeoCoordinate = {
-          lat: oldGeoCoordinate.lat + generateRandomNumber(minOffset, maxOffset),
-          lon: oldGeoCoordinate.lon + generateRandomNumber(minOffset, maxOffset)
+          lat: oldGeoCoordinate.lat + offsetLat,
+          lon: oldGeoCoordinate.lon + offsetLon
         };
+
+        return newGeoCoordinate;
+      }
+
+      function generateRandomGeoCoordinate(oldGeoCoordinate, minOffset, maxOffset) {
+        const offsetLat = generateRandomNumber(minOffset, maxOffset);
+        const offsetLon = generateRandomNumber(minOffset, maxOffset);
+        const newGeoCoordinate = generateGeoCoordinate(oldGeoCoordinate, offsetLat, offsetLon);
 
         return newGeoCoordinate;
       }
@@ -293,16 +300,24 @@
 
         const startGeoCoordinate = {lat: parseFloat(startingPointArray[0]), lon: parseFloat(startingPointArray[1])};
         const geoCoordinates = [startGeoCoordinate];
-        geoCoordinates.push(generateNewGeoCoordinate(startGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset));
+        geoCoordinates.push(generateRandomGeoCoordinate(startGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset));
         const initialPointsLength = geoCoordinates.length;
 
         for (let i = 0; i < (numPoints - initialPointsLength); i++) {
           const lastGeoCoordinate = geoCoordinates[geoCoordinates.length - 1];
           const secondLastGeoCoordinate = geoCoordinates[geoCoordinates.length - 2];
 
+          if (maxAngleDiff === 0) {
+            const offsetLat = lastGeoCoordinate.lat - secondLastGeoCoordinate.lat;
+            const offsetLon = lastGeoCoordinate.lon - secondLastGeoCoordinate.lon;
+            const nextGeoCoordinate = generateGeoCoordinate(lastGeoCoordinate, offsetLat, offsetLon);
+            geoCoordinates.push(nextGeoCoordinate);
+            continue;
+          }
+
           // TODO: Implement a better path finding algorithm (no guessing):
           while (true) {
-            const potentialNextGeoCoordinate = generateNewGeoCoordinate(lastGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset);
+            const potentialNextGeoCoordinate = generateRandomGeoCoordinate(lastGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset);
             if (!isValidNextGeoCoordinate(secondLastGeoCoordinate, lastGeoCoordinate, potentialNextGeoCoordinate, maxAngleDiff)) {
               continue;
             }
