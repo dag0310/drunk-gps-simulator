@@ -94,6 +94,13 @@
       #latLonContainer input {
         width: 90px;
       }
+      #distanceContainer {
+        margin-top: 3px;
+        display: none;
+      }
+      #distanceContainer input {
+        width: 100%;
+      }
       #gpsTrackCsvTextArea {
         display: none;
         height: 100px;
@@ -135,8 +142,8 @@
           <tr>
             <td><label for="distanceControl">Distance</label></td>
             <td>
-              <select id="distanceControl" autocomplete="off">
-                <!-- TODO: Add "<i>Custom</i> option to allow entering a custom amount of point values -->
+              <select id="distanceControl" autocomplete="off" onchange="distanceChanged(this.value)">
+                <option value="">Custom</option>
                 <option value="2">Some meters (2 points)</option>
                 <option value="3">~100 m (3 points)</option>
                 <option value="5">~200 m (5 points)</option>
@@ -151,6 +158,9 @@
 <option value="1000000">Million points</option>
 <option value="1000000000">Billion points</option>-->
               </select>
+              <div id="distanceContainer">
+                <input type="number" id="customDistanceControl" value="" min="2" step="1" autocomplete="off" placeholder="Number of points">
+              </div>
             </td>
           </tr>
           <tr>
@@ -317,7 +327,15 @@
           startLonString = customLonControl.value || '0';
         }
         const startGeoCoordinate = {lat: parseFloat(startLatString), lon: parseFloat(startLonString)};
-        const numPoints = parseInt(distanceControl.value, 10);
+
+        let numPointsString;
+        if (distanceControl.value) {
+          numPointsString = distanceControl.value;
+        } else {
+          numPointsString = customDistanceControl.value || 2;
+        }
+        const numPoints = parseInt(numPointsString, 10);
+
         const maxAngleDiff = parseFloat(drunkenessControl.value);
 
         const geoCoordinates = [startGeoCoordinate];
@@ -386,6 +404,10 @@
         latLonContainer.style.display = latLonString ? 'none' : 'block';
       }
 
+      function distanceChanged(numberOfPointsString) {
+        distanceContainer.style.display = numberOfPointsString ? 'none' : 'block';
+      }
+
       function drunkenessChanged(level) {
         level = parseInt(level, 10);
         let emoji;
@@ -416,6 +438,7 @@
       }
 
       placeChanged(placeControl.value);
+      distanceChanged(distanceControl.value);
       drunkenessChanged(drunkenessControl.value);
     </script>
   </body>
