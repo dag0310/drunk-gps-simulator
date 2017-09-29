@@ -319,7 +319,7 @@
           startLatString = customLatControl.value;
           startLonString = customLonControl.value;
         }
-        const startLatFloat = parseFloat(startLatString)
+        const startLatFloat = parseFloat(startLatString);
         const startLonFloat = parseFloat(startLonString);
         const startGeoCoordinate = {
           lat: (startLatFloat >= -180 && startLatFloat <= 180) ? startLatFloat : 0,
