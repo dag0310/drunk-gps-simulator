@@ -117,12 +117,12 @@
   <body>
     <main>
       <h1>Drunk GPS Simulator</h1>
-      <form onsubmit="return generateGpsTrack()">
+      <form id="form">
         <table>
           <tr>
             <td><label for="placeControl">Place</label></td>
             <td>
-              <select id="placeControl" autocomplete="off" onchange="placeChanged(this.value)">
+              <select id="placeControl" autocomplete="off">
                 <option value="">Custom</option>
                 <option value="52.371860,4.895861" selected>Amsterdam, Netherlands</option>
                 <option value="51.208147,3.224801">Bruges, Belgium</option>
@@ -139,7 +139,7 @@
           <tr>
             <td><label for="distanceControl">Distance</label></td>
             <td>
-              <select id="distanceControl" autocomplete="off" onchange="distanceChanged(this.value)">
+              <select id="distanceControl" autocomplete="off">
                 <option value="">Custom</option>
                 <option value="2">Some meters (2 points)</option>
                 <option value="3">~100 m (3 points)</option>
@@ -158,13 +158,13 @@
           </tr>
           <tr>
             <td><label for="drunkenessControl">Drunkeness</label></td>
-            <td><input type="range" id="drunkenessControl" value="90" min="0" max="360" step="1" autocomplete="off" oninput="drunkenessChanged(this.value)" onchange="drunkenessChanged(this.value)"> <span id="drunkenessEmoji">&nbsp;</span></td>
+            <td><input type="range" id="drunkenessControl" value="90" min="0" max="360" step="1" autocomplete="off"> <span id="drunkenessEmoji">&nbsp;</span></td>
           </tr>
         </table>
         <button type="submit">Stumble around</button>
       </form>
       <canvas id="gpsTrackCanvas" width="400" height="400"></canvas>
-      <textarea id="gpsTrackCsvTextArea" oninput="drawCsvDataOnCanvas()" autocomplete="off"></textarea>
+      <textarea id="gpsTrackCsvTextArea" autocomplete="off"></textarea>
     </main>
 
     <script>
@@ -253,6 +253,7 @@
       // ----------
       // UI helpers
       // ----------
+      const form = document.getElementById('form');
       const placeControl = document.getElementById('placeControl');
       const customLatLonContainer = document.getElementById('customLatLonContainer');
       const customLatControl = document.getElementById('customLatControl');
@@ -264,7 +265,7 @@
       const drunkenessEmoji = document.getElementById('drunkenessEmoji');
       const gpsTrackCanvas = document.getElementById('gpsTrackCanvas');
       const gpsTrackCsvTextArea = document.getElementById('gpsTrackCsvTextArea');
-      
+
       const canvasContext = gpsTrackCanvas.getContext('2d');
       const totalDrawingTimeInMs = 350;
       const minTimePerLineInMs = 10;
@@ -379,7 +380,7 @@
       // ---------
       const geoCoordinatesDecimalPlaces = 6;
 
-      function generateGpsTrack() {
+      function generateGpsTrack(event) {
         gpsTrackCanvas.style.display = 'block';
         gpsTrackCsvTextArea.style.display = 'block';
 
@@ -391,7 +392,7 @@
         const geoCoordinatesRounded = geoCoordinatesAsStringToNumeric(geoCoordinatesAsString);
         drawGeoCoordinatesOnCanvas(geoCoordinatesRounded);
 
-        return false;
+        event.preventDefault();
       }
 
       function drawCsvDataOnCanvas() {
@@ -402,8 +403,6 @@
         const geoCoordinates = geoCoordinatesAsStringToNumeric(geoCoordinatesAsString);
 
         drawGeoCoordinatesOnCanvas(geoCoordinates);
-
-        return false;
       }
 
       function placeChanged(latLonString) {
@@ -445,6 +444,26 @@
         }
         drunkenessEmoji.textContent = emoji;
       }
+
+      placeControl.addEventListener('change', event => {
+        placeChanged(event.target.value);
+      });
+
+      distanceControl.addEventListener('change', event => {
+        distanceChanged(event.target.value);
+      });
+
+      drunkenessControl.addEventListener('change', event => {
+        drunkenessChanged(event.target.value);
+      });
+
+      drunkenessControl.addEventListener('input', event => {
+        drunkenessChanged(event.target.value);
+      });
+
+      form.addEventListener('submit', generateGpsTrack);
+
+      gpsTrackCsvTextArea.addEventListener('input', drawCsvDataOnCanvas);
 
       placeChanged(placeControl.value);
       distanceChanged(distanceControl.value);
