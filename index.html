@@ -349,7 +349,7 @@
           }
 
           // TODO: Implement a better path finding algorithm (no guessing):
-          while (true) {
+          for (;;) {
             const potentialNextGeoCoordinate = generateRandomGeoCoordinate(lastGeoCoordinate, minGeoCoordinateOffset, maxGeoCoordinateOffset);
             if (!isValidNextGeoCoordinate(secondLastGeoCoordinate, lastGeoCoordinate, potentialNextGeoCoordinate, maxAngleDiff)) {
               continue;
